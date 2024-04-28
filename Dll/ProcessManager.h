@@ -2,7 +2,7 @@
 #include "Manager.h"
 #include"Common.h"
 #include"ProcessHelper.h"
-
+#include "atlstr.h"
 
 class CProcessManager :
     public CManager
@@ -16,12 +16,14 @@ public:
     int                     m_ElementCount;
     HANDLE                  m_ProcessHandle;
     BYTE                   m_ScanRelpy;
+    
 
     void MemoryFirstScan(PBYTE bufferData, ULONG_PTR BufferLength);
     void MemoryScanAgain(PBYTE bufferData, ULONG_PTR BufferLength);
     BOOL SendClientAddressList();
     BOOL SendClientProcessList();
     void MemoryValueChange(PBYTE bufferData, ULONG_PTR BufferLength);
+    void SendClientSystemInfo();
 };
 
 
