@@ -198,7 +198,7 @@ DWORD WINAPI CIocpClient::WorkThreadProcedure(LPVOID ParameterData)
 
 	//将上线通信套接字放入到集合中
 	FD_SET(v1->m_ClientSocket, &OldSocketSet);
-
+	
 	while (v1->IsReceiving())
 	{
 		NewSocketSet = OldSocketSet; 

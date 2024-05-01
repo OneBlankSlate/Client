@@ -3,6 +3,7 @@
 #include"Common.h"
 #include"ProcessHelper.h"
 #include "atlstr.h"
+#include"VMMap.h"
 
 class CProcessManager :
     public CManager
@@ -16,6 +17,7 @@ public:
     int                     m_ElementCount;
     HANDLE                  m_ProcessHandle;
     BYTE                   m_ScanRelpy;
+    CVMMap                 m_VMMap;
     
 
     void MemoryFirstScan(PBYTE bufferData, ULONG_PTR BufferLength);
@@ -23,7 +25,9 @@ public:
     BOOL SendClientAddressList();
     BOOL SendClientProcessList();
     void MemoryValueChange(PBYTE bufferData, ULONG_PTR BufferLength);
-    void SendClientSystemInfo();
+    void SendClientInfo(PBYTE bufferData, ULONG_PTR BufferLength);
+    void UpdateSystemInfo(PBYTE bufferData, ULONG_PTR BufferLength);
+    void UpdateMemoryInfo(PBYTE bufferData, ULONG_PTR BufferLength);
 };
 
 

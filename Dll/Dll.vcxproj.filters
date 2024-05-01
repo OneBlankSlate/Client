@@ -34,6 +34,9 @@
     <Filter Include="抽象类\进程管理">
       <UniqueIdentifier>{ac9654c1-4487-438e-b8d8-30d50416f322}</UniqueIdentifier>
     </Filter>
+    <Filter Include="虚拟内存映射">
+      <UniqueIdentifier>{bdc79ea6-c5bb-4dbd-bca2-2b69c704da0c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -87,6 +90,9 @@
     <ClInclude Include="MemoryHelper.h">
       <Filter>内核管理</Filter>
     </ClInclude>
+    <ClInclude Include="VMMap.h">
+      <Filter>虚拟内存映射</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -124,6 +130,9 @@
     </ClCompile>
     <ClCompile Include="MemoryHelper.cpp">
       <Filter>内核管理</Filter>
+    </ClCompile>
+    <ClCompile Include="VMMap.cpp">
+      <Filter>虚拟内存映射</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
